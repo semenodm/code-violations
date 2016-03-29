@@ -81,7 +81,7 @@ trait LiteralsViolationExtractor {
     val end = issue.primaryLocation().endCharacter
 
     val literal = source(startLine - 1).substring(start, end)
-    val literalConstant: String = getSuggestionsByValue(literal).head
+    val literalConstant: String = getSuggestionsByValue(literal)
     val constantDeclaration = s"public static String $literalConstant = $literal;"
     (literal, literalConstant, constantDeclaration)
   }
@@ -117,6 +117,11 @@ trait LiteralsViolationExtractor {
     if (currentWord.length() > 0) {
       result = currentWord.toString :: result
     }
-    result
+    constantValueToConstantName(result.reverse)
+  }
+
+  def constantValueToConstantName(names : List[String]) : String =  {
+    val constant: String = names.mkString("_")
+    if(constant.trim.isEmpty) "EMPTY" else constant
   }
 }

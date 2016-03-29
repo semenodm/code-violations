@@ -49,4 +49,11 @@ class LiteralsViolationExtractorTest extends FunSuite with LiteralsViolationExtr
       )
     ) === "    literals.add(LITERAL1); literals.add(LITERAL2);")
   }
+
+  test("tool suggest appropriate constant name"){
+    assert(getSuggestionsByValue("UTF-8") === "UTF_8")
+  }
+  test("tool suggest appropriate constant name for whitespaces"){
+    assert(getSuggestionsByValue("     ") === "EMPTY")
+  }
 }
