@@ -82,7 +82,7 @@ trait LiteralsViolationExtractor {
 
     val literal = source(startLine - 1).substring(start, end)
     val literalConstant: String = getSuggestionsByValue(literal)
-    val constantDeclaration = s"public static String $literalConstant = $literal;"
+    val constantDeclaration = s"public static final String $literalConstant = $literal;"
     (literal, literalConstant, constantDeclaration)
   }
 
