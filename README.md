@@ -46,8 +46,8 @@ Java file after tool run
 import java.util.ArrayList;
 
 public class JavaFileWithDupeLiteralsViolations {
-public static String LITERAL1 = "literal1";
-public static String LITERAL2 = "literal2";
+public static final String LITERAL1 = "literal1";
+public static final String LITERAL2 = "literal2";
   private List<String> literals;
 
   public JavaFileWithDupeLiteralsViolations() {
