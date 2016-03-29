@@ -1,9 +1,8 @@
 package org.dsemenov.code.violations.checker
 
-import com.google.common.collect.Iterables
 import org.sonar.java.model.ModifiersUtils
-import org.sonar.plugins.java.api.{JavaFileScanner, JavaFileScannerContext}
 import org.sonar.plugins.java.api.tree._
+import org.sonar.plugins.java.api.{JavaFileScanner, JavaFileScannerContext}
 
 import scala.collection.mutable
 
