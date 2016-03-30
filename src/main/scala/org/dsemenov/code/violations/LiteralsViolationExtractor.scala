@@ -1,6 +1,6 @@
 package org.dsemenov.code.violations
 
-import java.io.{File, FileWriter, PrintWriter}
+import java.io._
 import java.nio.charset.Charset
 
 import org.dsemenov.code.Things.ProjectFile
@@ -67,7 +67,8 @@ trait LiteralsViolationExtractor {
       }
 
       val line = classDeclaration.openBraceToken().line()
-      val res = (source.take(line).toList ::: constants ::: source.takeRight(source.length - line).toList).mkString("\n")
+      val res = (source.take(line).toList ::: constants ::: source.takeRight(source.length - line).toList)
+        .mkString(extractEOLCharacter(file.file))
       val writer: PrintWriter = new PrintWriter(new FileWriter(file.file))
       writer.write(res)
       writer.flush()
@@ -120,8 +121,19 @@ trait LiteralsViolationExtractor {
     constantValueToConstantName(result.reverse)
   }
 
-  def constantValueToConstantName(names : List[String]) : String =  {
+  def constantValueToConstantName(names: List[String]): String = {
     val constant: String = names.mkString("_")
-    if(constant.trim.isEmpty) "EMPTY" else constant
+    if (constant.trim.isEmpty) "EMPTY" else constant
+  }
+
+  def extractEOLCharacter(file: File): String = {
+    val br = new BufferedReader(new FileReader(file))
+
+    val trailingChars = Stream.continually(br.read().asInstanceOf[Char]).takeWhile{c => c != '\n' && c != -1.toChar}.last
+    br.close()
+    trailingChars match {
+      case '\r' => "\r\n"
+      case _ => "\n"
+    }
   }
 }

@@ -1,5 +1,7 @@
 package org.dsemenov.code.violations
 
+import java.io.File
+
 import org.scalatest.FunSuite
 import org.sonar.java.AnalyzerMessage.TextSpan
 
@@ -55,5 +57,11 @@ class LiteralsViolationExtractorTest extends FunSuite with LiteralsViolationExtr
   }
   test("tool suggest appropriate constant name for whitespaces"){
     assert(getSuggestionsByValue("     ") === "EMPTY")
+  }
+
+  test("extract file EOL char"){
+    assert(extractEOLCharacter(new File("src/test/resources/JavaFileWithDupeLiteralsViolations.java")) === "\n")
+    assert(extractEOLCharacter(new File("src/test/resources/JavaFileWithDupeLiteralsViolationsWin.java")) === "\r\n")
+    assert(extractEOLCharacter(new File("src/test/resources/SingleLine.txt")) === "\n")
   }
 }
