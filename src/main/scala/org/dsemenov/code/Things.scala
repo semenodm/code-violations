@@ -20,7 +20,8 @@ object Things {
   object Language extends Enumeration {
     type Language = Value
     val JAVA, SCALA, GROOVY, JSP, CLASS, OTHER = Value
-    def fromFile(file : File): Language ={
+
+    def fromFile(file: File): Language = {
       FilenameUtils.getExtension(file.getName) match {
         case "java" => JAVA
         case "groovy" => GROOVY
@@ -30,6 +31,6 @@ object Things {
     }
   }
 
-  case class ProjectFile(file : File, lang : Language, contentType: ContentType)
+  case class ProjectFile(file: File, lang: Language, contentType: ContentType)
 
 }

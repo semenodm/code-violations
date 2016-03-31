@@ -1,14 +1,11 @@
 package org.dsemenov.code.violations
 
 import java.io._
-import java.nio.charset.Charset
 
 import org.dsemenov.code.Things.ProjectFile
+import org.dsemenov.code.sonar.SonarCrawler.ReportIssue
 import org.dsemenov.code.violations.checker.DupeLiteralChecker
-import org.sonar.java.AnalyzerMessage.TextSpan
-import org.sonar.java.ast.JavaAstScanner
-import org.sonar.java.model.{JavaVersionImpl, VisitorsBridgeForTests}
-import org.sonar.java.{AnalyzerMessage, JavaConfiguration}
+import org.sonar.java.AnalyzerMessage
 
 import scala.collection.JavaConversions._
 import scala.io.Source
@@ -18,29 +15,9 @@ import scala.io.Source
   * Date: 3/28/16.
   */
 trait LiteralsViolationExtractor {
-  def extract(file: String) = {
-    import scala.collection.JavaConversions._
-    val bridge = new VisitorsBridgeForTests(List(new DupeLiteralChecker), Nil, null)
-    val conf = new JavaConfiguration(Charset.forName("UTF-8"))
-    conf.setJavaVersion(JavaVersionImpl.fromString("1.6"))
-    JavaAstScanner.scanSingleFileForTests(new File(file), bridge, conf)
-    bridge.lastCreatedTestContext.getIssues.toList
-  }
 
-  def substitute(content: String, replacements: List[(TextSpan, String, String)]): String = {
-    val ordered: List[(TextSpan, String, String)] = replacements.sortBy { case (location, _, _) => location.startCharacter }
-    val prefix = ordered
-      .foldLeft((0, "")) { (result, schema) =>
-        schema match {
-          case (span, from, to) =>
-            span.endCharacter -> s"${result._2}${content.substring(result._1, span.startCharacter)}$to"
-        }
-      }._2
-    val postfix = content.substring(ordered.last._1.endCharacter)
-    s"$prefix$postfix"
-  }
-
-  def fixLiteralIssues(file: ProjectFile, issues: List[AnalyzerMessage]): Unit = {
+  def fixLiteralIssues(file: ProjectFile, issues: List[ReportIssue]): Unit = {
+    import org.dsemenov.code.sonar.SonarCrawler._
     for (
       firstIssue <- issues.headOption;
       classDeclaration <- firstIssue.getCheck.asInstanceOf[DupeLiteralChecker].parentClass
@@ -124,16 +101,5 @@ trait LiteralsViolationExtractor {
   def constantValueToConstantName(names: List[String]): String = {
     val constant: String = names.mkString("_")
     if (constant.trim.isEmpty) "EMPTY" else constant
-  }
-
-  def extractEOLCharacter(file: File): String = {
-    val br = new BufferedReader(new FileReader(file))
-
-    val trailingChars = Stream.continually(br.read().asInstanceOf[Char]).takeWhile{c => c != '\n' && c != -1.toChar}.last
-    br.close()
-    trailingChars match {
-      case '\r' => "\r\n"
-      case _ => "\n"
-    }
   }
 }

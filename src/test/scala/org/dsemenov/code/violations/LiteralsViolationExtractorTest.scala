@@ -5,11 +5,15 @@ import java.io.File
 import org.scalatest.FunSuite
 import org.sonar.java.AnalyzerMessage.TextSpan
 
+import scala.sys.process.Process
+
 /**
   * Created by dsemenov
   * Date: 3/28/16.
   */
 class LiteralsViolationExtractorTest extends FunSuite with LiteralsViolationExtractor {
+
+  import org.dsemenov.code.sonar.SonarCrawler._
 
   test("substitute line with literals") {
     assert(substitute("literals.add literal1 literals.add literal2 bla lab literal2 lab",
@@ -41,7 +45,7 @@ class LiteralsViolationExtractorTest extends FunSuite with LiteralsViolationExtr
   test("from class") {
     assert(substitute("    literals.add(\"literal1\");",
       List((new TextSpan(0, 17, 0, 27), "literal1", "NEW_LITERAL_1"))
-      ) === "    literals.add(NEW_LITERAL_1);")
+    ) === "    literals.add(NEW_LITERAL_1);")
   }
 
   test("from class 2") {
@@ -52,14 +56,15 @@ class LiteralsViolationExtractorTest extends FunSuite with LiteralsViolationExtr
     ) === "    literals.add(LITERAL1); literals.add(LITERAL2);")
   }
 
-  test("tool suggest appropriate constant name"){
+  test("tool suggest appropriate constant name") {
     assert(getSuggestionsByValue("UTF-8") === "UTF_8")
   }
-  test("tool suggest appropriate constant name for whitespaces"){
+  test("tool suggest appropriate constant name for whitespaces") {
     assert(getSuggestionsByValue("     ") === "EMPTY")
   }
 
-  test("extract file EOL char"){
+  test("extract file EOL char") {
+    Process("unix2dos src/test/resources/JavaFileWithDupeLiteralsViolationsWin.java").!
     assert(extractEOLCharacter(new File("src/test/resources/JavaFileWithDupeLiteralsViolations.java")) === "\n")
     assert(extractEOLCharacter(new File("src/test/resources/JavaFileWithDupeLiteralsViolationsWin.java")) === "\r\n")
     assert(extractEOLCharacter(new File("src/test/resources/SingleLine.txt")) === "\n")
